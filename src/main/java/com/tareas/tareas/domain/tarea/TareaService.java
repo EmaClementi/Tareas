@@ -21,15 +21,17 @@ public class TareaService {
         var tarea = tareaRepository.findByNombre(datos.nombre());
         var usuario = usuarioRepository.findById(datos.usuarioId());
 
-        if(!tarea.isPresent() && usuario.isPresent()){
+        if(tarea.isPresent()){
+            throw new Validacion("La tarea ya existe");
+        }
+        if(usuario.isPresent()){
             var usuarioEncontrado = usuario.get();
             var nuevaTarea = new Tarea(datos, usuarioEncontrado);
-
             tareaRepository.save(nuevaTarea);
-            return new DatosRespuestaTarea(nuevaTarea);
 
+            return new DatosRespuestaTarea(nuevaTarea);
         }else{
-            throw new Validacion("La tarea ya existe o el usuario no existe");
+            throw new Validacion("El usuario no existe");
         }
 
     }
