@@ -18,18 +18,18 @@ public class TareaService {
     UsuarioRepository usuarioRepository;
 
     public DatosRespuestaTarea crearTarea(@Valid DatosCrearTarea datos) {
-        var tarea = tareaRepository.findByNombre(datos.nombre());
+        var tarea = tareaRepository.existsByUsuarioIdAndNombre(datos.usuarioId(), datos.nombre());
         var usuario = usuarioRepository.findById(datos.usuarioId());
 
-        if(tarea.isPresent()){
-            throw new Validacion("La tarea ya existe");
-        }
         if(usuario.isPresent()){
             var usuarioEncontrado = usuario.get();
-            var nuevaTarea = new Tarea(datos, usuarioEncontrado);
-            tareaRepository.save(nuevaTarea);
-
-            return new DatosRespuestaTarea(nuevaTarea);
+            if(tarea){
+                throw new Validacion("La tarea ya existe");
+            }else{
+                var nuevaTarea = new Tarea(datos, usuarioEncontrado);
+                tareaRepository.save(nuevaTarea);
+                return new DatosRespuestaTarea(nuevaTarea);
+            }
         }else{
             throw new Validacion("El usuario no existe");
         }
@@ -45,15 +45,51 @@ public class TareaService {
 
     }
     public DatosRespuestaTarea editarTarea(DatosActualizarTarea datos) {
-        var tarea = tareaRepository.findByNombre(datos.nombre());
+        var tarea = tareaRepository.findById(datos.id());
+        var usuario = usuarioRepository.findById(datos.usuarioId());
+
+
+        if(tarea.isPresent() && usuario.isPresent()){
+            var tareaEncontrada = tarea.get();
+            var usuarioEncontrado = usuario.get();
+
+
+            tareaEncontrada.actualizarTarea(datos,usuarioEncontrado);
+
+            return new DatosRespuestaTarea(tareaEncontrada.getNombre(),tareaEncontrada.getDescripcion(),tareaEncontrada.getEstado(),tareaEncontrada.getImportancia(),tareaEncontrada.getUsuario().getId());
+        }else{
+            throw new Validacion("No existe la tarea o el usuario");
+        }
+
+    }
+
+    public void eliminarTarea(Long id) {
+        var tarea = tareaRepository.findById(id);
+
+        if (tarea.isPresent()){
+            tareaRepository.deleteById(id);
+        }else{
+            throw new Validacion("La tarea no existe");
+        }
+    }
+
+    public DatosRespuestaTarea buscarTareaPorId(Long id) {
+        var tarea = tareaRepository.findById(id);
 
         if(tarea.isPresent()){
             var tareaEncontrada = tarea.get();
 
-            return new DatosRespuestaTarea(tareaEncontrada.getNombre(),tareaEncontrada.getDescripcion(),tareaEncontrada.getEstado(),tareaEncontrada.getImportancia(),tareaEncontrada.getUsuario().getId());
+            return new DatosRespuestaTarea(tareaEncontrada);
         }else{
-            throw new Validacion("No existe una tarea con ese nombre");
+            throw new Validacion("La tarea buscada no existe");
         }
+    }
 
+    public List<DatosRespuestaTarea> buscarTareaPorNombre(String nombre) {
+        List<DatosRespuestaTarea> tareas = tareaRepository.findByNombreContainsIgnoreCase(nombre).stream()
+                .map(t-> new DatosRespuestaTarea(t))
+                .toList();
+
+        return tareas;
     }
 }

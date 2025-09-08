@@ -8,8 +8,8 @@ public record DatosActualizarTarea(
     @NotNull Long id,
     @NotNull String nombre,
     @NotNull String descripcion,
-    @NotNull LocalDateTime fechaCreacion,
-    @NotNull LocalDateTime fechaFinalizacion,
+    @NotNull LocalDateTime fecha_creacion,
+    @NotNull LocalDateTime fecha_finalizacion,
     @NotNull Estado estado,
     @NotNull Importancia importancia,
     Long usuarioId

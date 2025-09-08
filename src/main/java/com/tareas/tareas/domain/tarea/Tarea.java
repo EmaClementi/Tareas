@@ -45,4 +45,13 @@ public class Tarea {
         this.importancia = datos.importancia();
         this.usuario = usuario;
     }
+    public void actualizarTarea(DatosActualizarTarea datos, Usuario usuario){
+        this.nombre = datos.nombre();
+        this.descripcion = datos.descripcion();
+        this.fechaCreacion = datos.fecha_creacion();
+        this.fechaFinalizacion = datos.fecha_finalizacion();
+        this.estado = datos.estado();
+        this.importancia = datos.importancia();
+        this.usuario = usuario;
+    }
 }

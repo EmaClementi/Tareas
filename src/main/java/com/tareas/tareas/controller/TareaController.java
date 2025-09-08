@@ -1,6 +1,7 @@
 package com.tareas.tareas.controller;
 
 import com.tareas.tareas.domain.tarea.*;
+import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,21 @@ public class TareaController {
 
         return ResponseEntity.ok(tareas);
     }
+    @GetMapping("/{id}")
+    @Transactional
+    public ResponseEntity buscarTarea(@PathVariable Long id){
+        var tarea = tareaService.buscarTareaPorId(id);
+
+        return ResponseEntity.ok(tarea);
+    }
+
+    @GetMapping("/nombre/{nombre}")
+    @Transactional
+    public ResponseEntity buscarTareaPorNombre(@PathVariable String nombre){
+        List<DatosRespuestaTarea> tareas = tareaService.buscarTareaPorNombre(nombre);
+
+        return ResponseEntity.ok(tareas);
+    }
 
     @PutMapping
     @Transactional
@@ -41,5 +57,12 @@ public class TareaController {
 
         return ResponseEntity.ok(tarea);
 
+    }
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity eliminarTarea(@PathVariable Long id){
+        tareaService.eliminarTarea(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

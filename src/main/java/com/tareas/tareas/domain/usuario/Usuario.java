@@ -28,4 +28,10 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Tarea> tareas;
 
+    public Usuario(DatosCrearUsuario datos) {
+        this.nombre = datos.nombre();
+        this.email = datos.email();
+        this.clave = datos.clave();
+        this.tareas = datos.tareas();
+    }
 }
