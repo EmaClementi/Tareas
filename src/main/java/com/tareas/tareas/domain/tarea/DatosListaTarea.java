@@ -11,7 +11,6 @@ public record DatosListaTarea(
         @NotNull LocalDateTime fecha_creacion,
         @NotNull LocalDateTime fecha_finalizacion,
         @NotNull Estado estado,
-        @NotNull Importancia importancia,
-        @NotNull Long usuarioId
+        @NotNull Importancia importancia
 ) {
 }

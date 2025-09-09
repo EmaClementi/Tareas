@@ -7,11 +7,10 @@ public record DatosRespuestaTarea(
         @NotNull String nombre,
         @NotNull String descripcion,
         @NotNull Estado estado,
-        @NotNull Importancia importancia,
-        @NotNull Long usuarioId
+        @NotNull Importancia importancia
 ) {
     public DatosRespuestaTarea(Tarea nuevaTarea) {
-        this(nuevaTarea.getNombre(),nuevaTarea.getDescripcion(), nuevaTarea.getEstado(), nuevaTarea.getImportancia(), nuevaTarea.getUsuario().getId());
+        this(nuevaTarea.getNombre(),nuevaTarea.getDescripcion(), nuevaTarea.getEstado(), nuevaTarea.getImportancia());
 
     }
 }

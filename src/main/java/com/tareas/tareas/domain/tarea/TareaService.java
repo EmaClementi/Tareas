@@ -39,7 +39,7 @@ public class TareaService {
     public List<DatosListaTarea> listar() {
         List<DatosListaTarea> tareas = tareaRepository.findAll()
                 .stream()
-                .map(tarea -> new DatosListaTarea(tarea.getId(),tarea.getNombre(),tarea.getDescripcion(),tarea.getFechaCreacion(),tarea.getFechaFinalizacion(),tarea.getEstado(),tarea.getImportancia(),tarea.getUsuario().getId()))
+                .map(tarea -> new DatosListaTarea(tarea.getId(),tarea.getNombre(),tarea.getDescripcion(),tarea.getFechaCreacion(),tarea.getFechaFinalizacion(),tarea.getEstado(),tarea.getImportancia()))
                 .toList();
         return tareas;
 
@@ -56,7 +56,7 @@ public class TareaService {
 
             tareaEncontrada.actualizarTarea(datos,usuarioEncontrado);
 
-            return new DatosRespuestaTarea(tareaEncontrada.getNombre(),tareaEncontrada.getDescripcion(),tareaEncontrada.getEstado(),tareaEncontrada.getImportancia(),tareaEncontrada.getUsuario().getId());
+            return new DatosRespuestaTarea(tareaEncontrada.getNombre(),tareaEncontrada.getDescripcion(),tareaEncontrada.getEstado(),tareaEncontrada.getImportancia());
         }else{
             throw new Validacion("No existe la tarea o el usuario");
         }

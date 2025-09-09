@@ -35,4 +35,29 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarios);
 
     }
+
+    @GetMapping("/{id}")
+    @Transactional
+    public ResponseEntity buscarUsuario(@PathVariable Long id){
+        var usuario = usuarioService.buscarUsuario(id);
+
+        return ResponseEntity.ok(usuario);
+    }
+    @PutMapping
+    @Transactional
+    public ResponseEntity editarUsuario(@RequestBody DatosActualizarUsuario datos){
+
+        var usuario = usuarioService.modificarUsuario(datos);
+
+        return ResponseEntity.ok(usuario);
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity eliminarUsuario(@PathVariable Long id){
+
+        usuarioService.eliminarUsuario(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
