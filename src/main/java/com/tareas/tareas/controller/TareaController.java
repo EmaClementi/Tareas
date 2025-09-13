@@ -52,7 +52,7 @@ public class TareaController {
 
     @PutMapping
     @Transactional
-    public ResponseEntity modificarTarea(@RequestBody DatosActualizarTarea datos){
+    public ResponseEntity modificarTarea(@RequestBody @Valid DatosActualizarTarea datos){
         DatosRespuestaTarea tarea = tareaService.editarTarea(datos);
 
         return ResponseEntity.ok(tarea);

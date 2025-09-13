@@ -45,7 +45,7 @@ public class UsuarioController {
     }
     @PutMapping
     @Transactional
-    public ResponseEntity editarUsuario(@RequestBody DatosActualizarUsuario datos){
+    public ResponseEntity editarUsuario(@RequestBody @Valid DatosActualizarUsuario datos){
 
         var usuario = usuarioService.modificarUsuario(datos);
 

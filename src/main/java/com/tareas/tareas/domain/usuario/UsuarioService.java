@@ -4,6 +4,9 @@ package com.tareas.tareas.domain.usuario;
 import com.tareas.tareas.Validacion;
 import com.tareas.tareas.domain.tarea.DatosRespuestaTarea;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +39,7 @@ public class UsuarioService {
     public DatosRespuestaUsuario crearUsuario(DatosCrearUsuario datos) {
 
         var usuario = usuarioRepository.findByEmail(datos.email());
-        if(usuario.isPresent()){
+        if(usuario != null){
             throw new Validacion("El usuario ya existe");
 
 
@@ -71,7 +74,5 @@ public class UsuarioService {
             throw new Validacion("El usuario no existe");
         }
     }
-
-
 
 }
