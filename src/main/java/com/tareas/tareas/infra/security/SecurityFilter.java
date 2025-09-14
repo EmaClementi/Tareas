@@ -1,5 +1,6 @@
 package com.tareas.tareas.infra.security;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.tareas.tareas.domain.usuario.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +28,9 @@ public class SecurityFilter extends OncePerRequestFilter {
         var authHeader = request.getHeader("Authorization");
         if (authHeader != null) {
             var token = authHeader.replace("Bearer ", "");
-            var nombreUsuario = tokenService.getSubject(token); // extract username
+
+            try {
+                var nombreUsuario = tokenService.getSubject(token); // extract username
 
                 // Token valido
                 var usuario = usuarioRepository.findByEmail(nombreUsuario);
@@ -36,6 +39,11 @@ public class SecurityFilter extends OncePerRequestFilter {
                 var authentication = new UsernamePasswordAuthenticationToken(usuario, null,
                         usuario.getAuthorities()); // Forzamos un inicio de sesion
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (RuntimeException e) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Token inválido");
+                return; // c
+            }
+
 
         }
         filterChain.doFilter(request, response);

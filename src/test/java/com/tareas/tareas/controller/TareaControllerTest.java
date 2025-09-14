@@ -22,8 +22,9 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 //Un test sigue la regla AAA (Arrange, Act, Assert):
 //Arrange (Given) → preparás los datos.
@@ -95,6 +96,19 @@ public class TareaControllerTest {
     }
 
     @Test
+    @DisplayName("buscamos una tarea que no existe, debe devolver un 400 bad request")
+    @WithMockUser
+    void buscarTareaNoExistente() throws Exception {
+        when(tareaService.buscarTareaPorId(1L)).thenThrow(new EntityNotFoundException("La tarea no existe"));
+
+        var response = mvc.perform(get("/tareas/1"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     @DisplayName("Buscamos una tarea que existe y deberia devolver un 200 ok")
     @WithMockUser
     void buscarTareaExistente() throws Exception {
@@ -137,6 +151,23 @@ public class TareaControllerTest {
     }
 
     @Test
+    @DisplayName("Actualizamos una tarea con campos no validos, deberia devolver un 400 bad request")
+    @WithMockUser
+    void modificarTareaConCamposInvalidos() throws Exception {
+        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea(null, "", "asdasd", LocalDateTime.now(),LocalDateTime.now().plusHours(2),Estado.PENDIENTE, Importancia.ALTA, 1L);
+        // no hacemos when(tareaService) por que se corta antes de llegar al servicio
+
+        var response = mvc.perform(put("/tareas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(datosActualizarTareaJacksonTester.write(actualizarTarea).getJson()))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+
+    }
+
+    @Test
     @DisplayName("Actualizamos una tarea que no existe, deberia devolver un 404 not found")
     @WithMockUser
     void modificarTareaInexistente() throws Exception {
@@ -152,6 +183,54 @@ public class TareaControllerTest {
                 .getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    @DisplayName("Eliminamos una tarea, deberia devolver un 204 NO CONTENT")
+    @WithMockUser
+    void eliminarTarea() throws Exception {
+
+        doNothing().when(tareaService).eliminarTarea(1L);
+
+        var response = mvc.perform(delete("/tareas/1"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    @DisplayName("Eliminamos una tarea que no existe, deberia devolver un 400 not foud")
+    @WithMockUser
+    void eliminarTareaInexistente() throws Exception {
+
+        doThrow(new EntityNotFoundException("Tarea no encontrada"))
+                .when(tareaService).eliminarTarea(99L);
+
+        var response = mvc.perform(delete("/tareas/99"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    @DisplayName("Acceder a endpoint sin token deberia devolver 403 Forbidden")
+    void accederSinToken() throws Exception {
+        var response = mvc.perform(get("/tareas/1"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    @DisplayName("Acceder con token invalido deberia devolver 403 Forbidden")
+    void accederConTokenInvalido() throws Exception {
+
+        mvc.perform(get("/tareas/1")
+                        .header("Authorization", "Bearer " + "eJ1c2VyaWn"))
+                .andExpect(status().isForbidden());
     }
 
 }

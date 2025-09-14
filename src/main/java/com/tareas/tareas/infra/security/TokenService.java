@@ -35,7 +35,7 @@ public class TokenService {
 
     public String getSubject(String token) {
         if (token == null) {
-            throw new RuntimeException();
+            throw new RuntimeException("TOKEN ES NULO");
         }
         DecodedJWT verifier = null;
         try {
