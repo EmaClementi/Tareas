@@ -22,16 +22,16 @@ Esta aplicación permite a los usuarios:
 ## Endpoints
 
 ### Autenticación
-POST /auth/registro  → Registrar usuario
-POST /auth/login     → Login y obtención de JWT
+- POST /auth/registro  → Registrar usuario
+- POST /auth/login     → Login y obtención de JWT
 
 ### Tareas (requiere token)
-GET /tareas          → Listar tareas
-GET /tareas/{id}     → Consultar tarea por id
-GET /tareas/nombre/{nombre}
-POST /tareas         → Crear tarea
-PUT /tareas          → Actualizar tarea
-DELETE /tareas/{id}  → Eliminar tarea
+- GET /tareas: Listar tareas
+- GET /tareas/{id}: Buscar tarea por id
+- GET /tareas/nombre/{nombre}: Buscar tarea por nombre
+- POST /tareas: Crear tarea
+- PUT /tareas: Actualizar tarea
+- DELETE /tareas/{id}: Eliminar tarea
 
 ## Test
 Se utilizan tests de integración con MockMvc y Mockito.
