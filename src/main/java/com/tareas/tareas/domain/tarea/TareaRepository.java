@@ -1,5 +1,6 @@
 package com.tareas.tareas.domain.tarea;
 
+import com.tareas.tareas.domain.usuario.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface TareaRepository extends JpaRepository<Tarea, Long> {
     List<Tarea> findByNombreContainsIgnoreCase(String nombre);
 
     boolean existsByUsuarioIdAndNombre(Long usuarioId, String nombre);
+
+    List<Tarea> findByUsuario(Usuario usuario);
 }

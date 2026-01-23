@@ -1,6 +1,8 @@
 package com.tareas.tareas.controller;
 
 import com.tareas.tareas.domain.tarea.*;
+import com.tareas.tareas.domain.usuario.Usuario;
+import com.tareas.tareas.domain.usuario.UsuarioService;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tareas")
@@ -16,6 +19,10 @@ public class TareaController {
 
     @Autowired
     TareaService tareaService;
+
+    @Autowired
+    UsuarioService usuarioService;
+
 
     @PostMapping
     @Transactional
@@ -26,14 +33,15 @@ public class TareaController {
         return ResponseEntity.ok(tarea);
 
     }
-
     @GetMapping
     @Transactional
-    public ResponseEntity listarTareas(){
-        List<DatosListaTarea> tareas = tareaService.listar();
-
+    public ResponseEntity listarMisTareas() {
+        Usuario usuario = usuarioService.getUsuarioAutenticado();
+        var tareas = tareaService.obtenerTareasPorUsuario(usuario);
         return ResponseEntity.ok(tareas);
     }
+
+
     @GetMapping("/{id}")
     @Transactional
     public ResponseEntity buscarTarea(@PathVariable Long id){

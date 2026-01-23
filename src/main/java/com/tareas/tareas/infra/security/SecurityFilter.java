@@ -1,6 +1,5 @@
 package com.tareas.tareas.infra.security;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.tareas.tareas.domain.usuario.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -4,6 +4,8 @@ package com.tareas.tareas.domain.usuario;
 import com.tareas.tareas.Validacion;
 import com.tareas.tareas.domain.tarea.DatosRespuestaTarea;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +18,16 @@ public class UsuarioService {
 
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    public Usuario getUsuarioAutenticado() {
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        String email = auth.getName();
+
+        return (Usuario) usuarioRepository.findByEmail(email);
+    }
 
     public List<DatosRespuestaUsuario> listarUsuarios() {
         List<DatosRespuestaUsuario> usuarios = usuarioRepository.findAll().stream()

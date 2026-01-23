@@ -39,8 +39,8 @@ public class Tarea {
     public Tarea(DatosCrearTarea datos, Usuario usuario) {
         this.nombre = datos.nombre();
         this.descripcion = datos.descripcion();
-        this.fechaCreacion = datos.fecha_creacion();
-        this.fechaFinalizacion = datos.fecha_finalizacion();
+        this.fechaCreacion = LocalDateTime.now();
+        this.fechaFinalizacion = LocalDateTime.now();
         this.estado = datos.estado();
         this.importancia = datos.importancia();
         this.usuario = usuario;

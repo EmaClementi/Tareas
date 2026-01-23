@@ -1,12 +1,15 @@
 package com.tareas.tareas.domain.tarea;
 
 import com.tareas.tareas.Validacion;
+import com.tareas.tareas.domain.usuario.Usuario;
 import com.tareas.tareas.domain.usuario.UsuarioRepository;
+import com.tareas.tareas.domain.usuario.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TareaService {
@@ -16,6 +19,9 @@ public class TareaService {
 
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    @Autowired
+    UsuarioService usuarioService;
 
     public DatosRespuestaTarea crearTarea(@Valid DatosCrearTarea datos) {
         var tarea = tareaRepository.existsByUsuarioIdAndNombre(datos.usuarioId(), datos.nombre());
@@ -36,14 +42,18 @@ public class TareaService {
 
     }
 
-    public List<DatosListaTarea> listar() {
-        List<DatosListaTarea> tareas = tareaRepository.findAll()
-                .stream()
-                .map(tarea -> new DatosListaTarea(tarea.getId(),tarea.getNombre(),tarea.getDescripcion(),tarea.getFechaCreacion(),tarea.getFechaFinalizacion(),tarea.getEstado(),tarea.getImportancia()))
-                .toList();
-        return tareas;
+    public List<DatosRespuestaTarea> obtenerTareasPorUsuario(Usuario usuario) {
+        var tareas = tareaRepository.findByUsuario(usuario);
 
+        if (tareas.isEmpty()) {
+            throw new RuntimeException("El usuario no tiene tareas asignadas");
+        }
+        List<DatosRespuestaTarea> tareasUsuario = tareas.stream()
+                .map(t-> new DatosRespuestaTarea(t.getNombre(),t.getDescripcion(),t.getEstado(),t.getImportancia()))
+                .collect(Collectors.toList());
+        return tareasUsuario;
     }
+
     public DatosRespuestaTarea editarTarea(DatosActualizarTarea datos) {
         var tarea = tareaRepository.findById(datos.id());
         var usuario = usuarioRepository.findById(datos.usuarioId());
@@ -92,4 +102,6 @@ public class TareaService {
 
         return tareas;
     }
+
+
 }
