@@ -7,6 +7,7 @@ import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,9 +27,9 @@ public class TareaController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity crearTarea(@RequestBody @Valid DatosCrearTarea datos){
+    public ResponseEntity crearTarea(@RequestBody @Valid DatosCrearTarea datos, @AuthenticationPrincipal Usuario usuario){
 
-        var tarea = tareaService.crearTarea(datos);
+        var tarea = tareaService.crearTarea(datos,usuario);
 
         return ResponseEntity.ok(tarea);
 
@@ -44,33 +45,40 @@ public class TareaController {
 
     @GetMapping("/{id}")
     @Transactional
-    public ResponseEntity buscarTarea(@PathVariable Long id){
-        var tarea = tareaService.buscarTareaPorId(id);
+    public ResponseEntity buscarTarea(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario){
+        var tarea = tareaService.buscarTareaPorId(id,usuario);
 
         return ResponseEntity.ok(tarea);
     }
 
     @GetMapping("/nombre/{nombre}")
     @Transactional
-    public ResponseEntity buscarTareaPorNombre(@PathVariable String nombre){
-        List<DatosRespuestaTarea> tareas = tareaService.buscarTareaPorNombre(nombre);
+    public ResponseEntity buscarTareaPorNombre(@PathVariable String nombre, @AuthenticationPrincipal Usuario usuario){
+        List<DatosRespuestaTarea> tareas = tareaService.buscarTareaPorNombre(nombre,usuario);
 
         return ResponseEntity.ok(tareas);
     }
 
-    @PutMapping
+    @PutMapping("/{idTarea}")
     @Transactional
-    public ResponseEntity modificarTarea(@RequestBody @Valid DatosActualizarTarea datos){
-        DatosRespuestaTarea tarea = tareaService.editarTarea(datos);
+    public ResponseEntity modificarTarea(@RequestBody @Valid DatosActualizarTarea datos,@PathVariable Long idTarea, @AuthenticationPrincipal Usuario usuario){
+        DatosRespuestaTarea tarea = tareaService.editarTarea(datos, usuario, idTarea);
 
         return ResponseEntity.ok(tarea);
 
     }
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity eliminarTarea(@PathVariable Long id){
-        tareaService.eliminarTarea(id);
+    public ResponseEntity eliminarTarea(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario){
+        tareaService.eliminarTarea(id, usuario);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/filtrar")
+    @Transactional
+    public ResponseEntity<List<DatosRespuestaTarea>> filtrarTareas(@RequestBody DatosFiltroTarea datos, @AuthenticationPrincipal Usuario usuario) {
+        var tareas = tareaService.filtrarTareas(datos, usuario);
+        return ResponseEntity.ok(tareas);
     }
 }
