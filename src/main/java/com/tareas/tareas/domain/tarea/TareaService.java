@@ -10,8 +10,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -203,6 +205,108 @@ public class TareaService {
 
         return stream.map(DatosRespuestaTarea::new).collect(Collectors.toList());
 
+    }
+
+    public DatosEstadisticasTarea obtenerEstadisticas(@AuthenticationPrincipal Usuario usuario) {
+        List<Tarea> tareas = tareaRepository.findByUsuario(usuario);
+
+        if (tareas.isEmpty()) {
+            return new DatosEstadisticasTarea(
+                    0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                    Map.of(), Map.of(),
+                    0.0, 0.0, 0.0, 0.0, 0.0  // Todos los porcentajes en 0
+            );
+        }
+
+        LocalDate hoy = LocalDate.now();
+        LocalDateTime inicioHoy = hoy.atStartOfDay();
+        LocalDate inicioSemana = hoy.minusDays(hoy.getDayOfWeek().getValue() - 1);
+
+        // Total de tareas
+        long total = tareas.size();
+
+        // Por estado
+        long completadas = tareas.stream()
+                .filter(t -> t.getEstado() == Estado.COMPLETADA)
+                .count();
+
+        long pendientes = tareas.stream()
+                .filter(t -> t.getEstado() == Estado.PENDIENTE)
+                .count();
+
+        long enProgreso = tareas.stream()
+                .filter(t -> t.getEstado() == Estado.EN_PROGRESO)
+                .count();
+
+        long canceladas = tareas.stream()
+                .filter(t -> t.getEstado() == Estado.CANCELADA)
+                .count();
+
+        // Vencidas (activas con fecha pasada)
+        long vencidas = tareas.stream()
+                .filter(t -> t.getFechaVencimiento() != null &&
+                        t.getFechaVencimiento().isBefore(hoy) &&
+                        t.getEstado() != Estado.COMPLETADA &&
+                        t.getEstado() != Estado.CANCELADA)
+                .count();
+
+        // Completadas hoy
+        long completadasHoy = tareas.stream()
+                .filter(t -> t.getFechaFinalizacion() != null &&
+                        t.getFechaFinalizacion().isAfter(inicioHoy))
+                .count();
+
+        // Completadas esta semana
+        long completadasSemana = tareas.stream()
+                .filter(t -> t.getFechaFinalizacion() != null &&
+                        t.getFechaFinalizacion().toLocalDate().isAfter(inicioSemana.minusDays(1)))
+                .count();
+
+        // Mapa por estado
+        Map<String, Long> porEstado = tareas.stream()
+                .collect(Collectors.groupingBy(
+                        t -> t.getEstado().name(),
+                        Collectors.counting()
+                ));
+
+        // Mapa por importancia
+        Map<String, Long> porImportancia = tareas.stream()
+                .collect(Collectors.groupingBy(
+                        t -> t.getImportancia().name(),
+                        Collectors.counting()
+                ));
+
+        // Calcular TODOS los porcentajes
+        double porcentajeCompletado = calcularPorcentaje(completadas, total);
+        double porcentajePendiente = calcularPorcentaje(pendientes, total);
+        double porcentajeEnProgreso = calcularPorcentaje(enProgreso, total);
+        double porcentajeCancelado = calcularPorcentaje(canceladas, total);
+        double porcentajeVencido = calcularPorcentaje(vencidas, total);
+
+        return new DatosEstadisticasTarea(
+                total,
+                completadas,
+                pendientes,
+                enProgreso,
+                canceladas,
+                vencidas,
+                completadasHoy,
+                completadasSemana,
+                porEstado,
+                porImportancia,
+                porcentajeCompletado,
+                porcentajePendiente,
+                porcentajeEnProgreso,
+                porcentajeCancelado,
+                porcentajeVencido
+        );
+    }
+
+    // Método auxiliar para calcular porcentajes
+    private double calcularPorcentaje(long parte, long total) {
+        if (total == 0) return 0.0;
+        double porcentaje = ((double) parte / total) * 100;
+        return Math.round(porcentaje * 100.0) / 100.0; // Redondear a 2 decimales
     }
 
 

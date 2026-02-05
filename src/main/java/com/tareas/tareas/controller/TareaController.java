@@ -59,6 +59,13 @@ public class TareaController {
         return ResponseEntity.ok(tareas);
     }
 
+    @GetMapping("/estadisticas")
+    @Transactional
+    public ResponseEntity<DatosEstadisticasTarea> obtenerEstadisticas(@AuthenticationPrincipal Usuario usuario) {
+        var estadisticas = tareaService.obtenerEstadisticas(usuario);
+        return ResponseEntity.ok(estadisticas);
+    }
+
     @PutMapping("/{idTarea}")
     @Transactional
     public ResponseEntity modificarTarea(@RequestBody @Valid DatosActualizarTarea datos,@PathVariable Long idTarea, @AuthenticationPrincipal Usuario usuario){
