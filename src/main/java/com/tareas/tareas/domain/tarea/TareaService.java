@@ -121,6 +121,72 @@ public class TareaService {
         };
     }
 
+    private Comparator<Tarea> obtenerComparadorInteligente() {
+        return (t1, t2) -> {
+            LocalDate hoy = LocalDate.now();
+
+            // 1. Tareas COMPLETADAS y CANCELADAS al final
+            boolean t1Terminada = t1.getEstado() == Estado.COMPLETADA || t1.getEstado() == Estado.CANCELADA;
+            boolean t2Terminada = t2.getEstado() == Estado.COMPLETADA || t2.getEstado() == Estado.CANCELADA;
+
+            if (t1Terminada && !t2Terminada) return 1;  // t1 va después
+            if (!t1Terminada && t2Terminada) return -1; // t1 va antes
+
+            // Si ambas están terminadas, ordenar por fecha de finalización
+            if (t1Terminada && t2Terminada) {
+                return t2.getFechaCreacion().compareTo(t1.getFechaCreacion());
+            }
+
+            // 2. Tareas VENCIDAS primero (las más atrasadas primero)
+            boolean t1Vencida = t1.estaVencida(); // Usar el método que ya tenés
+            boolean t2Vencida = t2.estaVencida();
+
+            if (t1Vencida && !t2Vencida) return -1;
+            if (!t1Vencida && t2Vencida) return 1;
+
+            if (t1Vencida && t2Vencida) {
+                // Entre vencidas, las más antiguas primero
+                return t1.getFechaVencimiento().compareTo(t2.getFechaVencimiento());
+            }
+
+            // 3. Tareas que vencen HOY
+            boolean t1Hoy = t1.getFechaVencimiento() != null &&
+                    t1.getFechaVencimiento().equals(hoy);
+            boolean t2Hoy = t2.getFechaVencimiento() != null &&
+                    t2.getFechaVencimiento().equals(hoy);
+
+            if (t1Hoy && !t2Hoy) return -1;
+            if (!t1Hoy && t2Hoy) return 1;
+
+            // 4. Ordenar por IMPORTANCIA (ALTA antes que MEDIA antes que BAJA)
+            int importanciaCompare = Integer.compare(
+                    getImportanciaValue(t2.getImportancia()),
+                    getImportanciaValue(t1.getImportancia())
+            );
+            if (importanciaCompare != 0) return importanciaCompare;
+
+            // 5. Ordenar por fecha de vencimiento (próximas primero)
+            if (t1.getFechaVencimiento() != null && t2.getFechaVencimiento() != null) {
+                return t1.getFechaVencimiento().compareTo(t2.getFechaVencimiento());
+            }
+
+            // 6. Tareas sin fecha al final
+            if (t1.getFechaVencimiento() == null && t2.getFechaVencimiento() != null) return 1;
+            if (t1.getFechaVencimiento() != null && t2.getFechaVencimiento() == null) return -1;
+
+            // 7. Si todo es igual, ordenar por fecha de creación (más recientes primero)
+            return t2.getFechaCreacion().compareTo(t1.getFechaCreacion());
+        };
+    }
+
+    private int getImportanciaValue(Importancia importancia) {
+        return switch (importancia) {
+            case ALTA -> 3;
+            case MEDIA -> 2;
+            case BAJA -> 1;
+        };
+    }
+
     public List<DatosRespuestaTarea> filtrarTareas(DatosFiltroTarea datos, @AuthenticationPrincipal Usuario usuario) {
 
         // primer buscamos las tareas asociadas al usuario de la sesion
@@ -193,7 +259,8 @@ public class TareaService {
 
         // toma el campo que ingreso el usuario, y lo pasa por el comparador, el usuario puede ordenar
         // por fecha de vencimiento y creacion, por nombre y por importancia, todos estos de manera asc y desc
-        if (datos.ordenarPor() != null) {
+
+        if (datos.ordenarPor() != null && !datos.ordenarPor().isEmpty()) {
             Comparator<Tarea> comparator = obtenerComparador(datos.ordenarPor());
 
             if (datos.direccion() != null && datos.direccion().equalsIgnoreCase("DESC")) {
@@ -201,6 +268,8 @@ public class TareaService {
             }
 
             stream = stream.sorted(comparator);
+        } else {
+            stream = stream.sorted(obtenerComparadorInteligente());
         }
 
         return stream.map(DatosRespuestaTarea::new).collect(Collectors.toList());

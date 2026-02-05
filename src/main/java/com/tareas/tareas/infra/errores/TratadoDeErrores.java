@@ -83,7 +83,7 @@ public class TratadoDeErrores {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity manejarCredencialesInvalidas(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Collections.singletonMap("error", ex.getMessage()));
+                .body(Collections.singletonMap("error", "Correo o Contraseña incorrectos"));
     }
 
     private record DatosErrorValidacion(String campo, String error){
