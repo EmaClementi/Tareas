@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,17 +75,24 @@ public class TareaControllerTest {
     void crearTareaConDatos() throws Exception {
         var nombre = "Hacer ejercicio";
         var descripcion = "Hacer rutina del dia 3, piernas completas";
-        var fecha_creacion = LocalDateTime.now();
-        var fecha_finalizacion = LocalDateTime.now().plusHours(1);
+        var fecha_creacion = LocalDate.now();
+        var fecha_inicio = LocalDate.now();
+        var fecha_vencimiento = LocalDate.now().plusDays(6);
+        var fecha_finalizacion = LocalDate.now().plusDays(1);
         var estado = Estado.PENDIENTE;
         var importancia = Importancia.ALTA;
-        var datosRespuestaTarea = new DatosRespuestaTarea(nombre,descripcion,estado,importancia);
-        when(tareaService.crearTarea(any())).thenReturn(datosRespuestaTarea);
+        Usuario usuario = new Usuario();
+
+        Tarea tarea = new Tarea();
+
+        var datosRespuestaTarea = new DatosRespuestaTarea(tarea);
+        when(tareaService.crearTarea(any(),any())).thenReturn(datosRespuestaTarea);
+
 
         var response = mvc.perform(post("/tareas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(datosCrearTareaJacksonTester.write(
-                        new DatosCrearTarea(nombre,descripcion,fecha_creacion,fecha_finalizacion,estado,importancia,2L)
+                        new DatosCrearTarea(nombre,descripcion,importancia,5,null,null)
                 ).getJson()
                 )
         )
@@ -101,7 +109,7 @@ public class TareaControllerTest {
     @DisplayName("buscamos una tarea que no existe, debe devolver un 400 bad request")
     @WithMockUser
     void buscarTareaNoExistente() throws Exception {
-        when(tareaService.buscarTareaPorId(1L)).thenThrow(new EntityNotFoundException("La tarea no existe"));
+        when(tareaService.buscarTareaPorId(any(),any())).thenThrow(new EntityNotFoundException("La tarea no existe"));
 
         var response = mvc.perform(get("/tareas/1"))
                 .andReturn()
@@ -115,10 +123,10 @@ public class TareaControllerTest {
     @WithMockUser
     void buscarTareaExistente() throws Exception {
         var usuario = new Usuario(1L,"ema","clementi","emi@gmail.com","123456", Role.USER,null);
-        DatosCrearTarea nuevaTarea = new DatosCrearTarea("Ir al medico", "Ir al medico a controlar resultados", LocalDateTime.now(),LocalDateTime.now().plusHours(2),Estado.PENDIENTE, Importancia.ALTA, 1L);
+        DatosCrearTarea nuevaTarea = new DatosCrearTarea("Ir al medico", "Ir al medico a controlar resultados",Importancia.ALTA,5,null,null);
         var tarea = new Tarea(nuevaTarea,usuario);
         var respuestaTarea = new DatosRespuestaTarea(tarea);
-        when(tareaService.buscarTareaPorId(1L)).thenReturn(respuestaTarea); // este metodo hace que cuando alguien llame al metodo de buscarTarea, devuelva automaticamente
+        when(tareaService.buscarTareaPorId(any(),any())).thenReturn(respuestaTarea); // este metodo hace que cuando alguien llame al metodo de buscarTarea, devuelva automaticamente
         // el dto de respuesta, esto evita que se llame a la base de datos real
 
 
@@ -132,16 +140,18 @@ public class TareaControllerTest {
         // convierto el dto de la respuesta en json en formato string, y lo comparo con el que recibi, si son iguales, el test pasa
 
     }
+
     @Test
     @DisplayName("Actualizamos una tarea y deberia devolver un 200 ok con los datos de la tarea")
     @WithMockUser
     void modificarTarea() throws Exception {
-        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea(1L, "Ir al medico", "Ir al medico a controlar resultados", LocalDateTime.now(),LocalDateTime.now().plusHours(2),Estado.PENDIENTE, Importancia.ALTA, 1L);
-        var respuestaTarea = new DatosRespuestaTarea(actualizarTarea.nombre(),actualizarTarea.descripcion(),actualizarTarea.estado(),actualizarTarea.importancia());
+        Tarea tarea = new Tarea();
+        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea( "Ir al medico", "Ir al medico a controlar resultados", Estado.PENDIENTE, Importancia.ALTA,6, null, null);
+        var respuestaTarea = new DatosRespuestaTarea(tarea);
 
-        when(tareaService.editarTarea(actualizarTarea)).thenReturn(respuestaTarea); // cuando el service reciba el dto actualizarTarea, debe devolver el dto respuestaTarea
+        when(tareaService.editarTarea(any(),any(),any())).thenReturn(respuestaTarea); // cuando el service reciba el dto actualizarTarea, debe devolver el dto respuestaTarea
 
-        var response = mvc.perform(put("/tareas")
+        var response = mvc.perform(put("/tareas/1")
                 .contentType(MediaType.APPLICATION_JSON) // decimos que el contenido va a venir en el cuerpo de la solicitud
                 .content(datosActualizarTareaJacksonTester.write(actualizarTarea).getJson()))// convertimos el objeto en json con jackson
                 .andReturn()
@@ -156,10 +166,10 @@ public class TareaControllerTest {
     @DisplayName("Actualizamos una tarea con campos no validos, deberia devolver un 400 bad request")
     @WithMockUser
     void modificarTareaConCamposInvalidos() throws Exception {
-        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea(null, "", "asdasd", LocalDateTime.now(),LocalDateTime.now().plusHours(2),Estado.PENDIENTE, Importancia.ALTA, 1L);
+        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea( "asd", "Ir al medico a controlar resultados", Estado.PENDIENTE, Importancia.ALTA,0, null, null);
         // no hacemos when(tareaService) por que se corta antes de llegar al servicio
 
-        var response = mvc.perform(put("/tareas")
+        var response = mvc.perform(put("/tareas/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(datosActualizarTareaJacksonTester.write(actualizarTarea).getJson()))
                 .andReturn()
@@ -173,12 +183,12 @@ public class TareaControllerTest {
     @DisplayName("Actualizamos una tarea que no existe, deberia devolver un 404 not found")
     @WithMockUser
     void modificarTareaInexistente() throws Exception {
-        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea(99L, "Ir al medico", "Ir al medico a controlar resultados", LocalDateTime.now(),LocalDateTime.now().plusHours(2),Estado.PENDIENTE, Importancia.ALTA, 1L);
+        DatosActualizarTarea actualizarTarea = new DatosActualizarTarea( "Ir al medico", "Ir al medico a controlar resultados", Estado.PENDIENTE, Importancia.ALTA,6, null, null);
 
-        when(tareaService.editarTarea(actualizarTarea)).thenThrow(new EntityNotFoundException("Tarea no encontrada"));
+        when(tareaService.editarTarea(any(),any(),any())).thenThrow(new EntityNotFoundException("Tarea no encontrada"));
 
 
-        var response = mvc.perform(put("/tareas")
+        var response = mvc.perform(put("/tareas/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(datosActualizarTareaJacksonTester.write(actualizarTarea).getJson()))
                 .andReturn()
@@ -192,7 +202,7 @@ public class TareaControllerTest {
     @WithMockUser
     void eliminarTarea() throws Exception {
 
-        doNothing().when(tareaService).eliminarTarea(1L);
+        doNothing().when(tareaService).eliminarTarea(any(),any());
 
         var response = mvc.perform(delete("/tareas/1"))
                 .andReturn()
@@ -207,7 +217,7 @@ public class TareaControllerTest {
     void eliminarTareaInexistente() throws Exception {
 
         doThrow(new EntityNotFoundException("Tarea no encontrada"))
-                .when(tareaService).eliminarTarea(99L);
+                .when(tareaService).eliminarTarea(any(),any());
 
         var response = mvc.perform(delete("/tareas/99"))
                 .andReturn()
@@ -234,5 +244,7 @@ public class TareaControllerTest {
                         .header("Authorization", "Bearer " + "eJ1c2VyaWn"))
                 .andExpect(status().isForbidden());
     }
+
+
 
 }
