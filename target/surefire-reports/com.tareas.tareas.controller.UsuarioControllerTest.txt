@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.tareas.tareas.controller.UsuarioControllerTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.761 s -- in com.tareas.tareas.controller.UsuarioControllerTest

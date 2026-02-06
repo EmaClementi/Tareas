@@ -1,0 +1,2 @@
+ALTER TABLE tareas
+MODIFY COLUMN fecha_finalizacion DATETIME NULL;
