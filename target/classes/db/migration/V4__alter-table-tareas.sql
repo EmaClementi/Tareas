@@ -1,1 +1,2 @@
-ALTER TABLE tareas ADD COLUMN duracion_dias INT;
+ALTER TABLE tareas
+ADD COLUMN duracion_dias INTEGER;
