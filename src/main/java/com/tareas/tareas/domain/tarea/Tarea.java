@@ -4,10 +4,7 @@ import com.tareas.tareas.Validacion;
 import com.tareas.tareas.domain.usuario.Usuario;
 import com.tareas.tareas.domain.usuario.UsuarioRepository;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 @Entity(name = "Tarea")
 @Table(name = "tareas")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
