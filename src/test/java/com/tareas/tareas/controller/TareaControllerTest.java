@@ -21,6 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -48,6 +51,9 @@ public class TareaControllerTest {
 
     @Autowired
     private JacksonTester<DatosActualizarTarea> datosActualizarTareaJacksonTester;
+
+    @Autowired
+    private JacksonTester<DatosFiltroTarea> datosFiltroTareaJacksonTester;
 
     @MockBean
     private TareaService tareaService;
@@ -243,6 +249,89 @@ public class TareaControllerTest {
         mvc.perform(get("/tareas/1")
                         .header("Authorization", "Bearer " + "eJ1c2VyaWn"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Listamos todas las tareas del usuario autenticado y devuelve 200 ok")
+    @WithMockUser
+    void listarMisTareas() throws Exception {
+        var usuario = new Usuario(1L,"ema","clementi","emi@gmail.com","123456", Role.USER,null);
+        DatosCrearTarea nuevaTarea = new DatosCrearTarea("Ir al medico", "Ir al medico a controlar resultados",Importancia.ALTA,5,null,null);
+        var tarea = new Tarea(nuevaTarea,usuario);
+        var respuestaTarea = new DatosRespuestaTarea(tarea);
+        List<DatosRespuestaTarea> tareas = List.of(respuestaTarea);
+
+        when(tareaService.obtenerTareasPorUsuario(any())).thenReturn(tareas);
+
+        var response = mvc.perform(get("/tareas"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("Buscamos tareas por nombre y devuelve 200 ok")
+    @WithMockUser
+    void buscarTareaPorNombre() throws Exception {
+        var usuario = new Usuario(1L,"ema","clementi","emi@gmail.com","123456", Role.USER,null);
+        DatosCrearTarea nuevaTarea = new DatosCrearTarea("Ir al medico", "Ir al medico a controlar resultados",Importancia.ALTA,5,null,null);
+        var tarea = new Tarea(nuevaTarea,usuario);
+        var respuestaTarea = new DatosRespuestaTarea(tarea);
+        List<DatosRespuestaTarea> tareas = List.of(respuestaTarea);
+
+        when(tareaService.buscarTareaPorNombre(anyString(),any())).thenReturn(tareas);
+
+        var response = mvc.perform(get("/tareas/nombre/medico"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("Obtenemos estadísticas de tareas y devuelve 200 ok")
+    @WithMockUser
+    void obtenerEstadisticas() throws Exception {
+        var estadisticas = new DatosEstadisticasTarea(
+                0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                Map.of(), Map.of(),
+                0.0, 0.0, 0.0, 0.0, 0.0
+        );
+
+        when(tareaService.obtenerEstadisticas(any())).thenReturn(estadisticas);
+
+        var response = mvc.perform(get("/tareas/estadisticas"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("Filtramos tareas y devuelve 200 ok")
+    @WithMockUser
+    void filtrarTareas() throws Exception {
+        var usuario = new Usuario(1L,"ema","clementi","emi@gmail.com","123456", Role.USER,null);
+        DatosCrearTarea nuevaTarea = new DatosCrearTarea("Ir al medico", "Ir al medico a controlar resultados",Importancia.ALTA,5,null,null);
+        var tarea = new Tarea(nuevaTarea,usuario);
+        var respuestaTarea = new DatosRespuestaTarea(tarea);
+        List<DatosRespuestaTarea> tareas = List.of(respuestaTarea); // metemos la tarea en una lista, ya que al filtrar se devuelve una lista
+
+        DatosFiltroTarea filtro = new DatosFiltroTarea("Ir al medico",Estado.PENDIENTE,Importancia.ALTA,null,null,false,5,null,null); // configura según tu clase
+
+        // aca decimos, cuando alguien llame al metodo filtrarTareas, devolve la lista de tareas que creamos antes
+        when(tareaService.filtrarTareas(any(),any())).thenReturn(tareas);
+
+        // aca simulamos que hacemos un post al endpoitn del filtro, y le enviamos los filtros convertidos a json en el body
+        var response = mvc.perform(post("/tareas/filtrar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(datosFiltroTareaJacksonTester.write(filtro).getJson()))
+                .andReturn()
+                .getResponse();
+
+        // miramos si la respuesta es un 200 ok, el test pasa
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
 
