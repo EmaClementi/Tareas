@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -43,7 +44,7 @@ class TareaIntegrationTest {
                 "Usuario Test",
                 "test@gmail.com",
                 "password123",
-                List.of()
+                new ArrayList<>()
         ));
         usuarioRepository.save(usuarioTest);
     }
@@ -101,7 +102,7 @@ class TareaIntegrationTest {
                 "Otro Apellido",
                 "otro2@gmail.com",
                 "password123",
-                List.of())
+                new ArrayList<>())
         );
         usuarioRepository.save(usuario2);
 
@@ -156,7 +157,7 @@ class TareaIntegrationTest {
                 "Otro Apellido",
                 "otro2@gmail.com",
                 "password123",
-                List.of())
+                new ArrayList<>())
         );
         usuarioRepository.save(usuario2);
 

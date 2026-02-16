@@ -1,3 +1,7 @@
-com\tareas\tareas\TareasApplicationTests.class
-com\tareas\tareas\controller\TareaControllerTest.class
+com\tareas\tareas\service\UsuarioServiceTest.class
 com\tareas\tareas\controller\UsuarioControllerTest.class
+com\tareas\tareas\controller\TareaControllerTest.class
+com\tareas\tareas\integration\UsuarioIntegrationTest.class
+com\tareas\tareas\service\TareaServiceTest.class
+com\tareas\tareas\TareasApplicationTests.class
+com\tareas\tareas\integration\TareaIntegrationTest.class

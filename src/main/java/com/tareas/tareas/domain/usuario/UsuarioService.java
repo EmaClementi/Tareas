@@ -81,7 +81,7 @@ public class UsuarioService {
         var usuario = usuarioRepository.findById(id);
 
         if(usuario.isPresent()){
-            usuarioRepository.delete(usuario.get());
+            usuarioRepository.deleteById(id);
         }else{
             throw new Validacion("El usuario no existe");
         }
