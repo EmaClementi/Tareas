@@ -31,7 +31,7 @@ public class UsuarioService {
 
     public List<DatosRespuestaUsuario> listarUsuarios() {
         List<DatosRespuestaUsuario> usuarios = usuarioRepository.findAll().stream()
-                .map(u->new DatosRespuestaUsuario(u.getNombre(),u.getEmail(),u.getTareas().stream().map(t-> new DatosRespuestaTarea(t)).toList()))
+                .map(u-> new DatosRespuestaUsuario(u.getId(),u.getNombre(),u.getEmail(),u.getTareas().stream().map(t-> new DatosRespuestaTarea(t)).toList()))
                 .toList();
 
         return usuarios;
@@ -81,7 +81,7 @@ public class UsuarioService {
         var usuario = usuarioRepository.findById(id);
 
         if(usuario.isPresent()){
-            usuarioRepository.deleteById(id);
+            usuarioRepository.delete(usuario.get());
         }else{
             throw new Validacion("El usuario no existe");
         }

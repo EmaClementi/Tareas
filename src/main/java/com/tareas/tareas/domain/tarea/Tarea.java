@@ -76,6 +76,7 @@ public class Tarea {
         }
     }
 
+
     public void actualizarTarea(DatosActualizarTarea datos, Usuario usuario) {
         this.nombre = datos.nombre();
         this.descripcion = datos.descripcion();

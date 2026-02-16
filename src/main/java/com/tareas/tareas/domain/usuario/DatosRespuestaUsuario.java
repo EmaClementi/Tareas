@@ -7,11 +7,12 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record DatosRespuestaUsuario(
+        Long id,
         @NotNull String nombre,
         @NotNull String email,
         List<DatosRespuestaTarea> tareas
 ) {
     public DatosRespuestaUsuario(Usuario usuario) {
-        this(usuario.getNombre(), usuario.getEmail(), usuario.tareas());
+        this(usuario.getId(),usuario.getNombre(), usuario.getEmail(), usuario.tareas());
     }
 }

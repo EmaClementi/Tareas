@@ -36,7 +36,7 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tarea> tareas = new ArrayList<>();
 
     public Usuario(DatosCrearUsuario datos) {
@@ -45,7 +45,7 @@ public class Usuario implements UserDetails {
         this.email = datos.email();
         this.clave = datos.clave();
         this.tareas = datos.tareas();
-        this.role = getRole();
+        this.role = Role.USER;
     }
 
     public void actualizarUsuario(DatosActualizarUsuario datos) {
@@ -63,6 +63,14 @@ public class Usuario implements UserDetails {
             return tareas.stream()
                     .map(t->new DatosRespuestaTarea(t)).toList();
         }
+    }
+
+    public void agregarTarea(Tarea tarea) {
+        if (this.tareas == null) {
+            this.tareas = new ArrayList<>();
+        }
+        this.tareas.add(tarea);
+        tarea.setUsuario(this);
     }
 
     @Override

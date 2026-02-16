@@ -41,6 +41,7 @@ public class TareaService {
         }else{
             var nuevaTarea = new Tarea(datos, usuario);
             tareaRepository.save(nuevaTarea);
+            usuario.agregarTarea(nuevaTarea);
             return new DatosRespuestaTarea(nuevaTarea);
         }
 

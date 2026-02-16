@@ -44,4 +44,6 @@ public interface TareaRepository extends JpaRepository<Tarea, Long> {
 
     List<Tarea> findByUsuarioOrderByFechaCreacionDesc(Usuario usuario);
 
+    long countByUsuarioId(Long usuarioId);
+
 }
