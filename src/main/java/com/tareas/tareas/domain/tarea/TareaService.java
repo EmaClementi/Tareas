@@ -32,6 +32,7 @@ public class TareaService {
     @Autowired
     UsuarioService usuarioService;
 
+
     public DatosRespuestaTarea crearTarea(@Valid DatosCrearTarea datos, @AuthenticationPrincipal Usuario usuario) {
         var tarea = tareaRepository.existsByUsuarioIdAndNombre(usuario.getId(), datos.nombre());
         // var usuario = usuarioRepository.findById(datos.usuarioId());
@@ -41,7 +42,6 @@ public class TareaService {
         }else{
             var nuevaTarea = new Tarea(datos, usuario);
             tareaRepository.save(nuevaTarea);
-            usuario.agregarTarea(nuevaTarea);
             return new DatosRespuestaTarea(nuevaTarea);
         }
 
