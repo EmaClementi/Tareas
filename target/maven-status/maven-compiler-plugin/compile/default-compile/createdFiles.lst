@@ -3,6 +3,7 @@ com\tareas\tareas\infra\security\AutenticacionService.class
 com\tareas\tareas\domain\tarea\DatosEstadisticasTarea.class
 com\tareas\tareas\domain\usuario\Usuario.class
 com\tareas\tareas\domain\usuario\DatosRespuestaUsuario.class
+com\tareas\tareas\controller\HealthController.class
 com\tareas\tareas\infra\security\WebConfig.class
 com\tareas\tareas\domain\tarea\Importancia.class
 com\tareas\tareas\TareasApplication.class

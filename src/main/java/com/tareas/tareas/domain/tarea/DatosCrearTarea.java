@@ -13,7 +13,7 @@ public record DatosCrearTarea(
         @NotNull(message = "El nombre es obligatorio")
         String nombre,
 
-        @NotNull(message = "La descripcion es obligatoria")
+        @NotBlank(message = "La descripcion es obligatoria")
         String descripcion,
 
         @NotNull
