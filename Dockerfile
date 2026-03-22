@@ -1,5 +1,12 @@
-FROM amazoncorretto:17-alpine-jdk
+FROM amazoncorretto:21-alpine AS build
+RUN apk add --no-cache maven
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-COPY target/tareas-0.0.1-SNAPSHOT.jar /api-v1.jar
+FROM amazoncorretto:21-alpine-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app_tareas.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "api-v1.jar"]
+ENTRYPOINT ["java", "-jar", "app_tareas.jar"]
