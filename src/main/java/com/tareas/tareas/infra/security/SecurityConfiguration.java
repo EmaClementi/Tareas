@@ -43,6 +43,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/registro").permitAll()// especificamos que el request matchee con una ruta, en este caso la ruta /auth/** que es por la cual se va a registrar y logear el usuario, y debe ser publica, con el permitAll le decimos que tiene permitodo el acceso
                                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                                .requestMatchers("/health").permitAll()
                                 .anyRequest().authenticated() // y a cualquier otro request o solicitud, se va a tener que autenticar
                 )
                 .cors(cors -> {})
