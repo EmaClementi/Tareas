@@ -1,4 +1,5 @@
 # Aplicación de lista de tareas con autenticación, CRUD de tareas y gestión de usuarios.
+<img width="850" height="725" alt="image" src="https://github.com/user-attachments/assets/0c849e47-e7f2-4bbd-9a9d-f2241f8707df" />
 
 ## Descripción
 
